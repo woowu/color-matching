@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import sys
 from scipy.optimize import *
 import math
 import random
@@ -10,6 +11,13 @@ l_num = len(range(400, 720, 20))
 # number of fibers
 #
 c_num = len(range(3))
+
+# price
+princes = [
+    60,
+    65,
+    63,
+]
 
 # r object
 r_objects = [
@@ -246,6 +254,11 @@ def delta_e(lab1, lab2):
     return math.sqrt(sum)
 
 def main():
+    budget = float(sys.argv[1]) 
+    neq_cons = {
+            'type': 'ineq',
+            'fun': lambda x: -1 * (x[0] * 120 + x[1] * 130 + x[2] * 126) + budget,
+    }
     for i in range(10):
         r_object = r_objects[i]
 
@@ -256,7 +269,11 @@ def main():
             #print('lab_var:', lab)
             return delta_e(lab, lab_object)
 
-        result = minimize(obj, method='Nelder-Mead', x0=[0.1e-2, 0.1e-2, 0.11e-2], bounds=((0, 5e-2*1.2), (0, 5e-2*1.2), (0, 5e-2*1.2)), tol=1e-10)
+        result = minimize(obj, method='SLSQP',
+                x0=[0.1e-2, 5e-2, 0.11e-2],
+                bounds=((0, 5e-2*1.2), (0, 5e-2*1.2), (0, 5e-2*1.2)), tol=1e-10,
+                constraints=neq_cons
+                )
         print(result)
 
 if __name__ == '__main__':
