@@ -245,13 +245,19 @@ def xyz_to_lab(xyz):
             1557.4 * (y/y0 - z/z0),
             ]
 
-def delta_e(lab1, lab2):
+def delta(lab1, lab2):
     sum = 0;
     for i in range(len(lab1)):
         e1 = lab1[i]
         e2 = lab2[i]
         sum += (e1 - e2)**2
     return math.sqrt(sum)
+
+def adjust_obj(delta_color, c_vector):
+    s = 0
+    for c in c_vector:
+        s += c
+    return delta_color * (1 + 0.05 * s/(3 * .5e-2))
 
 def main():
     budget = float(sys.argv[1]) 
@@ -267,14 +273,14 @@ def main():
             lab_object = xyz_to_lab(r_to_xyz(r_object))
             #print('lab_object:', lab_object)
             #print('lab_var:', lab)
-            return delta_e(lab, lab_object)
+            return adjust_obj(delta(lab, lab_object), c)
 
         result = minimize(obj, method='SLSQP',
                 x0=[0.1e-2, 5e-2, 0.11e-2],
                 bounds=((0, 5e-2*1.2), (0, 5e-2*1.2), (0, 5e-2*1.2)), tol=1e-10,
                 constraints=neq_cons
                 )
-        print(result)
+        print(result.x)
 
 if __name__ == '__main__':
     main()
